@@ -3,14 +3,11 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import androidx.room.Room
 import database.CrimeDatabase
+import database.migration_1_2
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Date
 import java.util.UUID
 
 private const val DATABASE_NAME = "crime-database"
@@ -26,6 +23,7 @@ class CrimeRepository private constructor(
             CrimeDatabase::class.java,
             DATABASE_NAME
         )
+        .addMigrations(migration_1_2)
         .build()
 
     companion object {
