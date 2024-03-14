@@ -28,6 +28,9 @@
         <action
             android:id="@+id/select_time"
             app:destination="@id/timePickerFragment" />
+        <action
+            android:id="@+id/zoom_photo"
+            app:destination="@id/zoomedPhotoDialogFragment" />
     </fragment>
     <dialog
         android:id="@+id/datePickerFragment"
@@ -44,5 +47,13 @@
         <argument
             android:name="crimeDate"
             app:argType="java.util.Date" />
+    </dialog>
+    <dialog
+        android:id="@+id/zoomedPhotoDialogFragment"
+        android:name="com.bignerdranch.android.criminalintent.ZoomedPhotoDialogFragment"
+        android:label="ZoomedPhotoDialogFragment">
+        <argument
+            android:name="photoName"
+            app:argType="string" />
     </dialog>
 </navigation>

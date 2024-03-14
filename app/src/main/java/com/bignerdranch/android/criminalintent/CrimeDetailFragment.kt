@@ -224,6 +224,13 @@ class CrimeDetailFragment : Fragment() {
                     CrimeDetailFragmentDirections.selectDate(crime.date)
                 )
             }
+            crimePhoto.setOnClickListener {
+                if (crimePhoto.tag != null) {
+                    findNavController().navigate(
+                        CrimeDetailFragmentDirections.zoomPhoto(crime.photoFileName ?: "")
+                    )
+                }
+            }
 
             crimeSolved.isChecked = crime.isSolved
 
