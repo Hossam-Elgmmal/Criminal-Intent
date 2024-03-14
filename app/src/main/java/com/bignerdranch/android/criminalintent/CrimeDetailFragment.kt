@@ -16,6 +16,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -28,6 +29,7 @@ import androidx.navigation.fragment.navArgs
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeDetailBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Date
 
 private const val Date_Format = "EEE, MMM, dd"
@@ -64,6 +66,17 @@ class CrimeDetailFragment : Fragment() {
                 "Got the suspect phone number",
                 Snackbar.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    private var photoName: String? = null
+    private val takePhoto = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { didTakePhoto ->
+        if (didTakePhoto && photoName != null) {
+            crimeDetailViewModel.updateCrime { oldCrime ->
+                oldCrime.copy(photoFileName = photoName)
+            }
         }
     }
 
@@ -111,6 +124,26 @@ class CrimeDetailFragment : Fragment() {
                 selectSuspect.contract.createIntent(requireContext(), null)
 
             crimeSuspect.isEnabled = canResolveIntent(selectSuspectIntent)
+
+            crimeCamera.setOnClickListener {
+                photoName = "IMG_${Date()}.JPG"
+                val photoFile = File(requireContext().applicationContext.filesDir, photoName!!)
+                val photoUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "com.bignerdranch.android.criminalintent.fileprovider",
+                    photoFile
+                )
+                takePhoto.launch(photoUri)
+            }
+            val photoFile = File(requireContext().applicationContext.filesDir, "Name")
+            val photoUri = FileProvider.getUriForFile(
+                requireContext(),
+                "com.bignerdranch.android.criminalintent.fileprovider",
+                photoFile
+            )
+
+            val captureImageIntent = takePhoto.contract.createIntent(requireContext(), photoUri)
+            crimeCamera.isEnabled = canResolveIntent(captureImageIntent)
 
         }
 
