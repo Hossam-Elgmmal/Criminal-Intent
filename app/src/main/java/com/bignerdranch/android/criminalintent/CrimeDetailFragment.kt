@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -13,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -23,6 +26,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeDetailBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -47,6 +51,20 @@ class CrimeDetailFragment : Fragment() {
 
         uri?.let { parseContactSelection(it) }
 
+    }
+
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+
+        if (isGranted) {
+            binding.callSuspect.performClick()
+            Snackbar.make(
+                binding.root,
+                "Got the suspect phone number",
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
     }
 
     override fun onCreateView(
@@ -84,15 +102,16 @@ class CrimeDetailFragment : Fragment() {
 
                 }
             }
+
             crimeSuspect.setOnClickListener {
                 selectSuspect.launch(null)
             }
+
             val selectSuspectIntent =
-                selectSuspect.contract.createIntent(
-                    requireContext(),
-                    null
-                )
+                selectSuspect.contract.createIntent(requireContext(), null)
+
             crimeSuspect.isEnabled = canResolveIntent(selectSuspectIntent)
+
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -110,6 +129,7 @@ class CrimeDetailFragment : Fragment() {
                 bundle.getSerializable(DatePickerFragment.BUNDLE_KEY_DATE) as Date
             crimeDetailViewModel.updateCrime { it.copy(date = newDate) }
         }
+
         setFragmentResultListener(
             TimePickerFragment.REQUEST_KEY_TIME
         ) { _, bundle ->
@@ -150,9 +170,11 @@ class CrimeDetailFragment : Fragment() {
     private fun updateUi(crime: Crime) {
 
         binding.apply {
+
             if (crimeTitle.text.toString() != crime.title) {
                 crimeTitle.setText(crime.title)
             }
+
             crimeDate.text = DateFormat.format("dd / MM / yyyy", crime.date)
 
             crimeTime.text = DateFormat.format("hh:mm a", crime.date)
@@ -162,6 +184,7 @@ class CrimeDetailFragment : Fragment() {
                     CrimeDetailFragmentDirections.selectTime(crime.date)
                 )
             }
+
             crimeDate.setOnClickListener {
                 findNavController().navigate(
                     CrimeDetailFragmentDirections.selectDate(crime.date)
@@ -186,9 +209,30 @@ class CrimeDetailFragment : Fragment() {
                 )
                 startActivity(chooserIntent)
             }
+
             crimeSuspect.text = crime.suspect.ifEmpty {
                 getString(R.string.crime_suspect_text)
             }
+
+            callSuspect.apply {
+                isEnabled = crime.suspectId != ""
+                if (crime.suspectPhoneNumber == "") {
+                    text = getText(R.string.get_number)
+                    setOnClickListener {
+                        checkPermission(crime.suspectId)
+                    }
+                } else {
+                    text = getString(R.string.call_the_suspect, crime.suspectPhoneNumber)
+                    setOnClickListener {
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:${crime.suspectPhoneNumber}")
+                        }
+                        startActivity(intent)
+                    }
+                }
+
+            }
+
         }
     }
 
@@ -211,19 +255,27 @@ class CrimeDetailFragment : Fragment() {
     }
 
     private fun parseContactSelection(contactUri: Uri) {
-        val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
-        val queryCursor =
-            requireActivity()
-                .contentResolver
-                .query(contactUri, queryFields, null, null, null)
-        queryCursor?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val suspect = cursor.getString(0)
-                crimeDetailViewModel.updateCrime { oldCrime ->
-                    oldCrime.copy(suspect = suspect)
+        val queryFields =
+            arrayOf(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts._ID)
+
+        requireActivity()
+            .contentResolver
+            .query(contactUri, queryFields, null, null, null)
+            ?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+
+                    val suspect = if (nameIndex >= 0) cursor.getString(nameIndex) else ""
+
+                    val idIndex = cursor.getColumnIndex(ContactsContract.Contacts._ID)
+
+                    val suspectId = if (idIndex >= 0) cursor.getLong(idIndex).toString() else ""
+
+                    crimeDetailViewModel.updateCrime { oldCrime ->
+                        oldCrime.copy(suspect = suspect, suspectId = suspectId)
+                    }
                 }
             }
-        }
     }
 
     private fun canResolveIntent(intent: Intent): Boolean {
@@ -235,5 +287,56 @@ class CrimeDetailFragment : Fragment() {
                 PackageManager.MATCH_DEFAULT_ONLY
             )
         return resolvedActivity != null
+    }
+
+    private fun checkPermission(suspectId: String) {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+
+                getSuspectPhoneNumber(suspectId)
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(),
+                Manifest.permission.READ_CONTACTS
+            ) -> {
+                Snackbar.make(
+                    binding.root,
+                    "we need the permission to get the suspect phone number",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+
+            else -> {
+                requestPermission.launch(Manifest.permission.READ_CONTACTS)
+
+            }
+        }
+    }
+
+    private fun getSuspectPhoneNumber(suspectId: String) {
+
+        requireActivity().contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+            arrayOf(suspectId),
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val numberIndex =
+                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+
+                val number = if (numberIndex >= 0) cursor.getString(numberIndex) else ""
+
+                crimeDetailViewModel.updateCrime { oldCrime ->
+                    oldCrime.copy(suspectPhoneNumber = number)
+                }
+            }
+        }
+
     }
 }
