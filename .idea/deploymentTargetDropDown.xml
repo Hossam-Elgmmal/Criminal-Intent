@@ -13,12 +13,12 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\lenovo\.android\avd\Pixel_7_Pro_API_34.avd" />
+                  <value value="C:\Users\lenovo\.android\avd\Pixel_8_Pro_API_34.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-02-22T05:53:30.510048200Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-03-14T14:39:44.962358400Z" />
         </State>
       </entry>
       <entry key="checkBoxWillUpdateCrimeObject()">
