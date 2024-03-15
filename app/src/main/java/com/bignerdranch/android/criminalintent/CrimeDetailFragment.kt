@@ -32,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
+import java.util.Locale
 
 private const val Date_Format = "EEE, MMM, dd"
 
@@ -202,16 +203,24 @@ class CrimeDetailFragment : Fragment() {
     }
 
     private fun updateUi(crime: Crime) {
+        val datePattern: String = DateFormat.getBestDateTimePattern(
+            Locale.getDefault(),
+            getString(R.string.date_skeleton)
+        )
 
+        val timePattern: String = DateFormat.getBestDateTimePattern(
+            Locale.getDefault(),
+            getString(R.string.time_skeleton)
+        )
         binding.apply {
 
             if (crimeTitle.text.toString() != crime.title) {
                 crimeTitle.setText(crime.title)
             }
 
-            crimeDate.text = DateFormat.format("dd / MM / yyyy", crime.date)
+            crimeDate.text = DateFormat.format(datePattern, crime.date)
 
-            crimeTime.text = DateFormat.format("hh:mm a", crime.date)
+            crimeTime.text = DateFormat.format(timePattern, crime.date)
 
             crimeTime.setOnClickListener {
                 findNavController().navigate(

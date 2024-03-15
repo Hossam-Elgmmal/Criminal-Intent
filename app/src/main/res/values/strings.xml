@@ -5,10 +5,10 @@
     <string name="crime_title_label">Title</string>
     <string name="crime_details_label">Details</string>
     <string name="crime_solved_label">Solved</string>
-    <string name="crime_title">Crime Title</string>
-    <string name="crime_date">Crime Date</string>
+    <string name="crime_title" translatable="false">Crime Title</string>
+    <string name="crime_date" translatable="false">Crime Date</string>
     <string name="new_crime">New Crime</string>
-    <string name="delete_crime">Delete Crime</string>
+    <string name="delete_crime" translatable="false">Delete Crime</string>
     <string name="crime_suspect_text">Choose Suspect</string>
     <string name="crime_report_text">Send Crime Report</string>
 
@@ -20,7 +20,9 @@
     <string name="crime_report_suspect">The suspect is %s.</string>
     <string name="crime_report_subject">CriminalIntent Crime Report</string>
     <string name="send_report">Send crime report via</string>
-    <string name="call_suspect">call suspect</string>
-    <string name="get_number">Get suspect phone number</string>
-    <string name="call_the_suspect">call the suspect %s</string>
+    <string name="call_suspect" translatable="false">call suspect</string>
+    <string name="get_number" translatable="false">Get suspect phone number</string>
+    <string name="call_the_suspect" translatable="false">call the suspect %s</string>
+    <string name="date_skeleton" translatable="false">ddMMMyyy</string>
+    <string name="time_skeleton" translatable="false">hmma</string>
 </resources>

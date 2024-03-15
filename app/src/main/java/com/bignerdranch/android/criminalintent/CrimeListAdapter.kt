@@ -7,15 +7,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bignerdranch.android.criminalintent.databinding.ListItemCrimeBinding
+import java.util.Locale
 import java.util.UUID
 
 class CrimeHolder(
     private val binding: ListItemCrimeBinding
 ) : ViewHolder(binding.root) {
+    private val pattern: String = DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyy")
     fun bind(crime: Crime, onCrimeClicked: (crimeId: UUID) -> Unit) {
         binding.apply {
             crimeTitle.text = crime.title
-            crimeDate.text = DateFormat.format("E , dd / MM / yyyy", crime.date)
+            crimeDate.text = DateFormat.format(pattern, crime.date)
             root.setOnClickListener {
                 onCrimeClicked(crime.id)
             }
