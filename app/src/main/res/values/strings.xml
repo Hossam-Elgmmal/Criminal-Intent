@@ -25,4 +25,8 @@
     <string name="call_the_suspect" translatable="false">call the suspect %s</string>
     <string name="date_skeleton" translatable="false">ddMMMyyy</string>
     <string name="time_skeleton" translatable="false">hmma</string>
+    <string name="crime_photo_button_description">Take photo of crime scene</string>
+    <string name="crime_photo_no_image_description">Crime scene photo (not set)</string>
+    <string name="crime_photo_image_description">Crime scene photo (set)</string>
+    <string name="the_crime_is_solved">The Crime is solved</string>
 </resources>

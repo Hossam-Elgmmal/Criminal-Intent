@@ -21,8 +21,18 @@ class CrimeHolder(
             root.setOnClickListener {
                 onCrimeClicked(crime.id)
             }
-            crimeSolved.visibility = if (crime.isSolved) View.VISIBLE
-            else View.GONE
+            val isSolvedText =
+                if (crime.isSolved) {
+                    crimeSolved.visibility = View.VISIBLE
+                    "is solved"
+                } else {
+                    crimeSolved.visibility = View.GONE
+                    "is not solved"
+                }
+            root.contentDescription = "${crime.title}! discovered at ${
+                DateFormat.format(pattern, crime.date)
+            } and $isSolvedText."
+
         }
     }
 }

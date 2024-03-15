@@ -35,7 +35,7 @@ class CrimeListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCrimeListBinding.inflate(inflater, container, false)
         binding.crimeRecyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -95,7 +95,7 @@ class CrimeListFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val newCrime = Crime(
                 id = UUID.randomUUID(),
-                title = "Unknown Crime",
+                title = "new Crime",
                 date = Date(),
                 isSolved = false
             )
