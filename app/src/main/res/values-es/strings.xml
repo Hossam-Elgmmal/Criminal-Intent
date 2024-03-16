@@ -3,7 +3,7 @@
     <string name="app_name">IntentoCriminal</string>
     <string name="crime_title_hint">Introduzca un título para el crimen.</string>
     <string name="crime_title_label">Título</string>
-    <string name="crime_details_label">Detalles</string>
+    <string name="crime_details_label">Detalles:</string>
     <string name="crime_solved_label">Solucionado</string>
     <string name="new_crime">Crimen Nuevo</string>
     <string name="crime_suspect_text">Elegir Sospechoso</string>
@@ -26,4 +26,6 @@
         Foto de la escena del crimen (establecida)
     </string>
     <string name="the_crime_is_solved">El crimen está resuelto</string>
+    <string name="date">fecha:</string>
+    <string name="time">tiempo:</string>
 </resources>

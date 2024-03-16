@@ -1,6 +1,7 @@
 package com.bignerdranch.android.criminalintent
 
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +27,8 @@ class ZoomedPhotoDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         updatePhoto(args.photoName)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            binding.root.accessibilityPaneTitle = getString(R.string.crime_photo_zoomed_in)
     }
 
     private fun updatePhoto(photoFileName: String?) {

@@ -146,6 +146,9 @@ class CrimeDetailFragment : Fragment() {
 
             val captureImageIntent = takePhoto.contract.createIntent(requireContext(), photoUri)
             crimeCamera.isEnabled = canResolveIntent(captureImageIntent)
+            crimePhoto.setOnClickListener {
+                it.announceForAccessibility(getString(R.string.set_a_photo_first))
+            }
 
         }
 
@@ -232,13 +235,6 @@ class CrimeDetailFragment : Fragment() {
                 findNavController().navigate(
                     CrimeDetailFragmentDirections.selectDate(crime.date)
                 )
-            }
-            crimePhoto.setOnClickListener {
-                if (crimePhoto.tag != null) {
-                    findNavController().navigate(
-                        CrimeDetailFragmentDirections.zoomPhoto(crime.photoFileName ?: "")
-                    )
-                }
             }
 
             crimeSolved.isChecked = crime.isSolved
@@ -403,17 +399,31 @@ class CrimeDetailFragment : Fragment() {
                         measuredView.width,
                         measuredView.height
                     )
-                    binding.crimePhoto.setImageBitmap(scaledBitmap)
-                    binding.crimePhoto.tag = photoFileName
-                    binding.crimePhoto.contentDescription =
-                        getString(R.string.crime_photo_image_description)
+                    binding.crimePhoto.apply {
+                        setImageBitmap(scaledBitmap)
+                        tag = photoFileName
+                        contentDescription =
+                            getString(R.string.crime_photo_image_description)
+                        setOnClickListener {
+                            findNavController().navigate(
+                                CrimeDetailFragmentDirections.zoomPhoto(photoFileName)
+                            )
+                        }
+                        announceForAccessibility(context.getString(R.string.crime_photo_has_been_set))
+                    }
 
                 }
             } else {
-                binding.crimePhoto.setImageBitmap(null)
-                binding.crimePhoto.tag = null
-                binding.crimePhoto.contentDescription =
-                    getString(R.string.crime_photo_no_image_description)
+                binding.crimePhoto.apply {
+
+                    setImageBitmap(null)
+                    tag = null
+                    contentDescription = getString(R.string.crime_photo_no_image_description)
+                    setOnClickListener {
+                        it.announceForAccessibility(getString(R.string.set_a_photo_first))
+                    }
+
+                }
             }
         }
     }
